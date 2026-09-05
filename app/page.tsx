@@ -90,7 +90,7 @@ export default function Home() {
               onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
               aria-label="崇友重置與緩速歸樓操作模擬影片"
             >
-              <source src="/media/重置與歸樓_操作模擬_V4.mp4" type="video/mp4" />
+              <source src="/media/training-v4-web.mp4" type="video/mp4" />
               <track
                 kind="captions"
                 src="/media/重置與歸樓_字幕.vtt"
@@ -121,7 +121,7 @@ export default function Home() {
             <button type="button" onClick={() => jumpTo(81.2083)}>
               <MapPin size={17} aria-hidden="true" />步驟 5
             </button>
-            <a className="download-button" href="/media/重置與歸樓_操作模擬_V4.mp4" download>
+            <a className="download-button" href="/media/training-v4-web.mp4" download>
               <Download size={17} aria-hidden="true" />下載影片
             </a>
           </div>
