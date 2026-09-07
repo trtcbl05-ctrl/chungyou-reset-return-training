@@ -20,24 +20,24 @@ type Chapter = {
 
 const chapters: Chapter[] = [
   { at: 0, group: '開場', step: '操作教學', title: '控制箱遠照' },
-  { at: 6, group: '步驟 4｜重置', step: '操作位置', title: '步驟四導引圖' },
-  { at: 14, group: '步驟 4｜重置', step: '4.1', title: 'SW4：NOR → STP' },
-  { at: 25.25, group: '步驟 4｜重置', step: '4.1', title: 'SW2、SW3 同時上撥' },
-  { at: 38.0417, group: '步驟 4｜重置', step: '4.1', title: '復歸開關' },
-  { at: 54.2917, group: '步驟 4｜重置', step: '4.1', title: 'SW4：STP → NOR' },
-  { at: 65.0833, group: '步驟 4｜重置', step: '4.2', title: '就近樓層水平' },
-  { at: 81.2083, group: '步驟 5｜緩速歸樓', step: '操作位置', title: '控制箱遠照' },
-  { at: 87.2083, group: '步驟 5｜緩速歸樓', step: '操作位置', title: '步驟五導引圖' },
-  { at: 96.2083, group: '步驟 5｜緩速歸樓', step: '5.1', title: 'ECSW：正常 → 緊急' },
-  { at: 107.75, group: '步驟 5｜緩速歸樓', step: '5.2', title: '蓄電池開關：ON' },
-  { at: 120.7083, group: '步驟 5｜緩速歸樓', step: '5.3', title: '救援裝置盒保護蓋' },
-  { at: 133.125, group: '步驟 5｜緩速歸樓', step: '5.3', title: '紅色停止鈕' },
-  { at: 143.125, group: '步驟 5｜緩速歸樓', step: '5.4', title: '對講機告知乘客' },
-  { at: 156.4167, group: '步驟 5｜緩速歸樓', step: '5.4 A', title: 'A 步驟' },
-  { at: 172.5417, group: '步驟 5｜緩速歸樓', step: '5.4 B', title: 'B 步驟' },
-  { at: 188.75, group: '步驟 5｜緩速歸樓', step: '5.5', title: '門區「水平燈」' },
-  { at: 200.125, group: '步驟 5｜緩速歸樓', step: '5.6', title: '主電源開關' },
-  { at: 212.125, group: '步驟 5｜緩速歸樓', step: '5.6', title: '乘場門' },
+  { at: 4, group: '步驟 4｜重置', step: '操作位置', title: '步驟四導引圖' },
+  { at: 6, group: '步驟 4｜重置', step: '4.1', title: 'SW4：NOR → STP' },
+  { at: 14.5, group: '步驟 4｜重置', step: '4.1', title: 'SW2、SW3 同時上撥' },
+  { at: 24.5417, group: '步驟 4｜重置', step: '4.1', title: '復歸開關' },
+  { at: 38.0417, group: '步驟 4｜重置', step: '4.1', title: 'SW4：STP → NOR' },
+  { at: 46.0833, group: '步驟 4｜重置', step: '4.2', title: '就近樓層水平' },
+  { at: 59.4583, group: '步驟 5｜緩速歸樓', step: '操作位置', title: '控制箱遠照' },
+  { at: 63.4583, group: '步驟 5｜緩速歸樓', step: '操作位置', title: '步驟五導引圖' },
+  { at: 65.4583, group: '步驟 5｜緩速歸樓', step: '5.1', title: 'ECSW：正常 → 緊急' },
+  { at: 74.25, group: '步驟 5｜緩速歸樓', step: '5.2', title: '蓄電池開關：ON' },
+  { at: 84.4583, group: '步驟 5｜緩速歸樓', step: '5.3', title: '救援裝置盒保護蓋' },
+  { at: 94.125, group: '步驟 5｜緩速歸樓', step: '5.3', title: '紅色停止鈕' },
+  { at: 100.125, group: '步驟 5｜緩速歸樓', step: '5.4', title: '對講機告知乘客' },
+  { at: 110.6667, group: '步驟 5｜緩速歸樓', step: '5.4 A', title: 'A 步驟' },
+  { at: 124.0417, group: '步驟 5｜緩速歸樓', step: '5.4 B', title: 'B 步驟' },
+  { at: 137.5, group: '步驟 5｜緩速歸樓', step: '5.5', title: '門區「水平燈」' },
+  { at: 146.125, group: '步驟 5｜緩速歸樓', step: '5.6', title: '主電源開關' },
+  { at: 155.375, group: '步驟 5｜緩速歸樓', step: '5.6', title: '乘場門' },
 ];
 
 const groups = ['開場', '步驟 4｜重置', '步驟 5｜緩速歸樓'] as const;
@@ -90,10 +90,10 @@ export default function Home() {
               onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
               aria-label="崇友重置與緩速歸樓操作模擬影片"
             >
-              <source src="/media/training-v4-web.mp4" type="video/mp4" />
+              <source src="/media/training-v6-web.mp4" type="video/mp4" />
               <track
                 kind="captions"
-                src="/media/重置與歸樓_字幕.vtt"
+                src="/media/重置與歸樓_V6_字幕.vtt"
                 srcLang="zh-TW"
                 label="繁體中文"
                 default
@@ -108,7 +108,7 @@ export default function Home() {
               <span>目前段落</span>
               <strong>{chapters[activeIndex].step}　{chapters[activeIndex].title}</strong>
             </div>
-            <time>{formatTime(currentTime)} / 03:43</time>
+            <time>{formatTime(currentTime)} / 02:44</time>
           </div>
 
           <div className="quick-actions" aria-label="快速操作">
@@ -118,18 +118,18 @@ export default function Home() {
             <button type="button" onClick={() => jumpTo(6)}>
               <MapPin size={17} aria-hidden="true" />步驟 4
             </button>
-            <button type="button" onClick={() => jumpTo(81.2083)}>
+            <button type="button" onClick={() => jumpTo(59.4583)}>
               <MapPin size={17} aria-hidden="true" />步驟 5
             </button>
-            <a className="download-button" href="/media/training-v4-web.mp4" download>
+            <a className="download-button" href="/media/training-v6-web.mp4" download>
               <Download size={17} aria-hidden="true" />下載影片
             </a>
           </div>
 
           <div className="info-strip">
-            <div><Clock3 size={18} aria-hidden="true" /><span><strong>03:43</strong> 完整教學</span></div>
+            <div><Clock3 size={18} aria-hidden="true" /><span><strong>02:44</strong> 完整教學</span></div>
             <div><Captions size={18} aria-hidden="true" /><span>台灣口調旁白與畫面字幕</span></div>
-            <a href="/media/重置與歸樓_字幕.srt" download>下載字幕檔</a>
+            <a href="/media/重置與歸樓_V6_字幕.srt" download>下載字幕檔</a>
           </div>
         </div>
 
