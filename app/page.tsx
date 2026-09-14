@@ -51,6 +51,7 @@ function formatTime(seconds: number) {
 
 export default function Home() {
   const playerRef = useRef<HTMLVideoElement>(null);
+  const pendingSeekRef = useRef<number | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
 
   const activeIndex = useMemo(() => {
@@ -63,8 +64,15 @@ export default function Home() {
   const jumpTo = (seconds: number) => {
     const player = playerRef.current;
     if (!player) return;
-    player.currentTime = seconds;
-    setCurrentTime(seconds);
+    // Seeking before metadata is ready is ignored by some mobile browsers.
+    // Queue the target until the duration and media timeline are available.
+    if (player.readyState < 1) {
+      pendingSeekRef.current = seconds;
+      player.load();
+      return;
+    }
+    player.currentTime = Math.min(seconds, Number.isFinite(player.duration) ? player.duration : seconds);
+    setCurrentTime(player.currentTime);
     void player.play().catch(() => undefined);
   };
 
@@ -87,6 +95,14 @@ export default function Home() {
               playsInline
               preload="metadata"
               poster="/media/01_intro.png"
+              onLoadedMetadata={(event) => {
+                const target = pendingSeekRef.current;
+                if (target === null) return;
+                pendingSeekRef.current = null;
+                event.currentTarget.currentTime = Math.min(target, event.currentTarget.duration);
+                setCurrentTime(event.currentTarget.currentTime);
+                void event.currentTarget.play().catch(() => undefined);
+              }}
               onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
               aria-label="崇友重置與緩速歸樓操作模擬影片"
             >
