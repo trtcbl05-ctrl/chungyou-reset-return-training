@@ -71,9 +71,22 @@ export default function Home() {
       player.load();
       return;
     }
-    player.currentTime = Math.min(seconds, Number.isFinite(player.duration) ? player.duration : seconds);
-    setCurrentTime(player.currentTime);
-    void player.play().catch(() => undefined);
+    const target = Math.min(seconds, Number.isFinite(player.duration) ? player.duration : seconds);
+    player.pause();
+    player.currentTime = target;
+    setCurrentTime(target);
+
+    // currentTime changes are asynchronous. Waiting for `seeked` prevents
+    // play() from restarting the media at the old position on mobile Safari.
+    const playAfterSeek = () => {
+      player.removeEventListener('seeked', playAfterSeek);
+      void player.play().catch(() => undefined);
+    };
+    if (Math.abs(player.currentTime - target) < 0.05) {
+      void player.play().catch(() => undefined);
+    } else {
+      player.addEventListener('seeked', playAfterSeek, { once: true });
+    }
   };
 
   return (
@@ -99,9 +112,15 @@ export default function Home() {
                 const target = pendingSeekRef.current;
                 if (target === null) return;
                 pendingSeekRef.current = null;
-                event.currentTarget.currentTime = Math.min(target, event.currentTarget.duration);
-                setCurrentTime(event.currentTarget.currentTime);
-                void event.currentTarget.play().catch(() => undefined);
+                const player = event.currentTarget;
+                const seekTarget = Math.min(target, player.duration);
+                player.currentTime = seekTarget;
+                setCurrentTime(seekTarget);
+                const playAfterSeek = () => {
+                  player.removeEventListener('seeked', playAfterSeek);
+                  void player.play().catch(() => undefined);
+                };
+                player.addEventListener('seeked', playAfterSeek, { once: true });
               }}
               onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
               aria-label="崇友重置與緩速歸樓操作模擬影片"
