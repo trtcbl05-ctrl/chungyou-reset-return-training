@@ -9,7 +9,8 @@ import {
   Play,
   RotateCcw,
 } from 'lucide-react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createVideoNavigator, type NavigationState } from './video-navigator';
 
 type Chapter = {
   at: number;
@@ -51,12 +52,27 @@ function formatTime(seconds: number) {
 
 export default function Home() {
   const playerRef = useRef<HTMLVideoElement>(null);
-  const pendingSeekRef = useRef<number | null>(null);
+  const navigatorRef = useRef<ReturnType<typeof createVideoNavigator> | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
+  const [navigation, setNavigation] = useState<NavigationState>({ phase: 'idle', target: 0, percent: null });
+  const [isInteractive, setIsInteractive] = useState(false);
+  const isBusy = navigation.phase === 'loading' || navigation.phase === 'seeking';
+
+  useEffect(() => {
+    if (!playerRef.current) return;
+    const navigator = createVideoNavigator(playerRef.current, '/media/training-v6-web.mp4', setNavigation);
+    navigatorRef.current = navigator;
+    setIsInteractive(true);
+    return () => {
+      navigatorRef.current = null;
+      navigator.dispose();
+    };
+  }, []);
 
   const activeIndex = useMemo(() => {
     for (let index = chapters.length - 1; index >= 0; index -= 1) {
-      if (currentTime >= chapters[index].at) return index;
+      // Media timestamps can round a few microseconds below the requested chapter.
+      if (currentTime + 0.0001 >= chapters[index].at) return index;
     }
     return 0;
   }, [currentTime]);
@@ -64,28 +80,10 @@ export default function Home() {
   const jumpTo = (seconds: number) => {
     const player = playerRef.current;
     if (!player) return;
-    // Seeking before metadata is ready is ignored by some mobile browsers.
-    // Queue the target until the duration and media timeline are available.
-    if (player.readyState < 1) {
-      pendingSeekRef.current = seconds;
-      player.load();
-      return;
-    }
-    const target = Math.min(seconds, Number.isFinite(player.duration) ? player.duration : seconds);
-    player.pause();
-    player.currentTime = target;
-    setCurrentTime(target);
-
-    // currentTime changes are asynchronous. Waiting for `seeked` prevents
-    // play() from restarting the media at the old position on mobile Safari.
-    const playAfterSeek = () => {
-      player.removeEventListener('seeked', playAfterSeek);
-      void player.play().catch(() => undefined);
-    };
-    if (Math.abs(player.currentTime - target) < 0.05) {
-      void player.play().catch(() => undefined);
-    } else {
-      player.addEventListener('seeked', playAfterSeek, { once: true });
+    navigatorRef.current?.jumpTo(seconds);
+    const bounds = player.getBoundingClientRect();
+    if (bounds.top < 0 || bounds.bottom > window.innerHeight) {
+      player.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
     }
   };
 
@@ -101,28 +99,15 @@ export default function Home() {
 
       <section className="training-layout" aria-label="教學影片播放器">
         <div className="player-column">
-          <div className="video-card">
+          <div className="video-card" aria-busy={isBusy}>
             <video
               ref={playerRef}
               controls
               playsInline
               preload="metadata"
               poster="/media/01_intro.png"
-              onLoadedMetadata={(event) => {
-                const target = pendingSeekRef.current;
-                if (target === null) return;
-                pendingSeekRef.current = null;
-                const player = event.currentTarget;
-                const seekTarget = Math.min(target, player.duration);
-                player.currentTime = seekTarget;
-                setCurrentTime(seekTarget);
-                const playAfterSeek = () => {
-                  player.removeEventListener('seeked', playAfterSeek);
-                  void player.play().catch(() => undefined);
-                };
-                player.addEventListener('seeked', playAfterSeek, { once: true });
-              }}
               onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+              onSeeked={(event) => setCurrentTime(event.currentTarget.currentTime)}
               aria-label="崇友重置與緩速歸樓操作模擬影片"
             >
               <source src="/media/training-v6-web.mp4" type="video/mp4" />
@@ -137,6 +122,27 @@ export default function Home() {
             </video>
           </div>
 
+          {!isInteractive && <div className="player-status" role="status">正在啟用章節按鈕…</div>}
+
+          {navigation.phase !== 'idle' && (
+            <div className={`player-status ${navigation.phase}`} role="status">
+              {navigation.phase === 'loading' && <>
+                <span>正在載入影片{navigation.percent === null ? '…' : ` ${navigation.percent}%`}，完成後跳至 {formatTime(navigation.target)}</span>
+                <progress max={100} value={navigation.percent ?? undefined} aria-label="影片載入進度" />
+              </>}
+              {navigation.phase === 'seeking' && <span>正在跳至 {formatTime(navigation.target)}…</span>}
+              {navigation.phase === 'ready' && <span>已跳至 {formatTime(navigation.target)}</span>}
+              {navigation.phase === 'blocked' && <>
+                <span>已定位到 {formatTime(navigation.target)}，請按播放繼續。</span>
+                <button type="button" onClick={() => navigatorRef.current?.resume()}>繼續播放</button>
+              </>}
+              {navigation.phase === 'error' && <>
+                <span>影片載入或跳轉失敗，請重試，或使用下方「下載影片」。</span>
+                <button type="button" onClick={() => jumpTo(navigation.target)}>重試跳轉</button>
+              </>}
+            </div>
+          )}
+
           <div className="now-playing" aria-live="polite">
             <div className="now-icon"><Play size={18} aria-hidden="true" /></div>
             <div>
@@ -147,13 +153,13 @@ export default function Home() {
           </div>
 
           <div className="quick-actions" aria-label="快速操作">
-            <button type="button" onClick={() => jumpTo(0)}>
+            <button type="button" disabled={!isInteractive} onClick={() => jumpTo(0)}>
               <RotateCcw size={17} aria-hidden="true" />從頭播放
             </button>
-            <button type="button" onClick={() => jumpTo(6)}>
+            <button type="button" disabled={!isInteractive} onClick={() => jumpTo(6)}>
               <MapPin size={17} aria-hidden="true" />步驟 4
             </button>
-            <button type="button" onClick={() => jumpTo(59.4583)}>
+            <button type="button" disabled={!isInteractive} onClick={() => jumpTo(59.4583)}>
               <MapPin size={17} aria-hidden="true" />步驟 5
             </button>
             <a className="download-button" href="/media/training-v6-web.mp4" download>
@@ -184,8 +190,9 @@ export default function Home() {
                 {chapters.map((chapter, index) => chapter.group === group && (
                   <button
                     type="button"
+                    disabled={!isInteractive}
                     key={`${chapter.at}-${chapter.title}`}
-                    className={index === activeIndex ? 'active' : ''}
+                    className={[index === activeIndex ? 'active' : '', isBusy && chapter.at === navigation.target ? 'pending' : ''].filter(Boolean).join(' ')}
                     aria-current={index === activeIndex ? 'true' : undefined}
                     onClick={() => jumpTo(chapter.at)}
                   >
