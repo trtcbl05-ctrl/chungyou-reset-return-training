@@ -122,10 +122,10 @@ export default function Home() {
             </video>
           </div>
 
-          {!isInteractive && <div className="player-status" role="status">正在啟用章節按鈕…</div>}
+          {!isInteractive && <output className="player-status">正在啟用章節按鈕…</output>}
 
           {navigation.phase !== 'idle' && (
-            <div className={`player-status ${navigation.phase}`} role="status">
+            <output className={`player-status ${navigation.phase}`}>
               {navigation.phase === 'loading' && <>
                 <span>正在載入影片{navigation.percent === null ? '…' : ` ${navigation.percent}%`}，完成後跳至 {formatTime(navigation.target)}</span>
                 <progress max={100} value={navigation.percent ?? undefined} aria-label="影片載入進度" />
@@ -140,7 +140,7 @@ export default function Home() {
                 <span>影片載入或跳轉失敗，請重試，或使用下方「下載影片」。</span>
                 <button type="button" onClick={() => jumpTo(navigation.target)}>重試跳轉</button>
               </>}
-            </div>
+            </output>
           )}
 
           <div className="now-playing" aria-live="polite">
