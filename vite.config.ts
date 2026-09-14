@@ -49,7 +49,10 @@ export default defineConfig(async () => {
 
   return {
     css: { postcss: { plugins: [tailwindcss()] } },
-    server: needsPollingWatch
+    server: {
+      host: '0.0.0.0',
+      allowedHosts: ['terminal.local'],
+      ...(needsPollingWatch
       ? {
           watch: {
             useFsEvents: false,
@@ -58,7 +61,8 @@ export default defineConfig(async () => {
             ignored: ['**/public/media/**', '**/dist/**'],
           },
         }
-      : undefined,
+      : {}),
+    },
     plugins: [
       vinext(),
       sites(),
