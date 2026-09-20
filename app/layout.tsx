@@ -12,11 +12,6 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/icons/apple-touch-icon-180.png', sizes: '180x180', type: 'image/png' }],
   },
-  appleWebApp: {
-    capable: true,
-    title: '崇友操作教學',
-    statusBarStyle: 'black-translucent',
-  },
 };
 
 export const viewport: Viewport = {

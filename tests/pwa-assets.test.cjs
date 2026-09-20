@@ -17,7 +17,8 @@ function readPngSize(filePath) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-assert.equal(manifest.display, 'standalone');
+assert.equal(manifest.display, 'browser');
+assert.equal(manifest.display_override, undefined);
 assert.equal(manifest.start_url, '/');
 assert.equal(manifest.scope, '/');
 assert.equal(manifest.theme_color, '#0B1B35');
@@ -46,5 +47,6 @@ const layout = fs.readFileSync(layoutPath, 'utf8');
 assert.match(layout, /manifest\.webmanifest/);
 assert.match(layout, /apple-touch-icon-180\.png/);
 assert.match(layout, /themeColor/);
+assert.doesNotMatch(layout, /appleWebApp/);
 
 console.log('PWA asset checks passed');
