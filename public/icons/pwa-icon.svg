@@ -1,0 +1,53 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="background" x1="120" y1="80" x2="900" y2="940" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#102B55"/>
+      <stop offset="1" stop-color="#071329"/>
+    </linearGradient>
+    <linearGradient id="door" x1="295" y1="206" x2="720" y2="852" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FCFF"/>
+      <stop offset="1" stop-color="#B9E8FF"/>
+    </linearGradient>
+    <linearGradient id="doorInset" x1="340" y1="264" x2="680" y2="768" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DDF4FF"/>
+      <stop offset="1" stop-color="#75CFFF"/>
+    </linearGradient>
+    <filter id="shadow" x="178" y="126" width="668" height="804" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="26" stdDeviation="24" flood-color="#020A19" flood-opacity="0.52"/>
+    </filter>
+    <filter id="glow" x="590" y="350" width="350" height="430" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <clipPath id="doorClip">
+      <rect x="288" y="190" width="448" height="672" rx="64"/>
+    </clipPath>
+  </defs>
+
+  <rect x="32" y="32" width="960" height="960" rx="226" fill="url(#background)"/>
+  <path d="M106 732C226 870 386 930 566 930C742 930 866 871 936 774" stroke="#1F4E80" stroke-width="10" stroke-linecap="round" opacity="0.45"/>
+  <path d="M116 238C208 126 348 88 492 90" stroke="#4BBEFF" stroke-width="8" stroke-linecap="round" opacity="0.48"/>
+
+  <g filter="url(#shadow)">
+    <rect x="264" y="166" width="496" height="728" rx="78" fill="#0B1B35" stroke="#4ABEFF" stroke-width="12"/>
+    <rect x="288" y="190" width="448" height="672" rx="64" fill="url(#door)"/>
+    <g clip-path="url(#doorClip)">
+      <rect x="316" y="222" width="186" height="600" rx="28" fill="url(#doorInset)"/>
+      <rect x="522" y="222" width="186" height="600" rx="28" fill="url(#doorInset)"/>
+      <path d="M412 222V822M612 222V822" stroke="#73CFFF" stroke-width="4" opacity="0.7"/>
+      <path d="M502 206V850M522 206V850" stroke="#0C79D8" stroke-width="10" opacity="0.9"/>
+      <path d="M326 704H698" stroke="#FFFFFF" stroke-width="8" opacity="0.5"/>
+      <path d="M326 744H698" stroke="#FFFFFF" stroke-width="5" opacity="0.28"/>
+    </g>
+    <rect x="418" y="118" width="188" height="74" rx="30" fill="#071329" stroke="#4ABEFF" stroke-width="10"/>
+    <circle cx="464" cy="155" r="13" fill="#6CDAFF"/>
+    <circle cx="560" cy="155" r="13" fill="#FFB33E"/>
+  </g>
+
+  <circle cx="748" cy="568" r="166" fill="#FF9F2F" opacity="0.22" filter="url(#glow)"/>
+  <path d="M742 786C827 758 882 682 882 594C882 493 800 411 699 411C648 411 602 432 568 466" stroke="#FFAA36" stroke-width="48" stroke-linecap="round"/>
+  <path d="M570 390L556 488L654 474" fill="#FFAA36"/>
+  <path d="M734 786C650 780 584 735 548 665" stroke="#FFD279" stroke-width="8" stroke-linecap="round" opacity="0.9"/>
+
+  <circle cx="216" cy="792" r="38" fill="#0C79D8" stroke="#A8E5FF" stroke-width="9"/>
+  <path d="M202 792H230M216 778V806" stroke="#F4FBFF" stroke-width="9" stroke-linecap="round"/>
+</svg>
