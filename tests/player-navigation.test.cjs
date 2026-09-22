@@ -101,12 +101,42 @@ function fixture(t, fetchImpl = async () => new Response(new Uint8Array(32), { h
       button.props.onClick();
     },
     button(name) { return find(render(), (node) => node.type === 'button' && textOf(node) === name); },
+    mediaEvent(prop) { find(render(), (node) => node.type === 'video').props[prop]?.({ currentTarget: video }); },
     text() { return textOf(render()); },
     nowPlaying() { return textOf(find(render(), (node) => node.props?.className === 'now-playing')); },
     dispose() { cleanups.forEach((fn) => fn?.()); },
   };
 }
 const settled = () => new Promise((resolve) => setImmediate(resolve));
+
+test('from-start plays directly without waiting for a second full download', async (t) => {
+  const f = fixture(t);
+  f.click('從頭播放');
+  await settled();
+  assert.equal(f.requests, 0);
+  assert.equal(f.video.paused, false);
+});
+
+test('native buffering and failures have visible recovery without chapter navigation', async (t) => {
+  const f = fixture(t);
+  f.mediaEvent('onWaiting');
+  assert.match(f.text(), /緩衝/);
+  f.mediaEvent('onPlaying');
+  assert.doesNotMatch(f.text(), /正在緩衝/);
+  f.mediaEvent('onError');
+  assert.ok(f.button('重新載入影片'));
+  f.click('重新載入影片');
+  await settled();
+  assert.equal(f.video.paused, false);
+});
+
+test('fullscreen rejection provides a usable alternative', async (t) => {
+  const f = fixture(t);
+  f.video.requestFullscreen = async () => { throw new DOMException('Denied', 'NotAllowedError'); };
+  f.click('全螢幕觀看');
+  await settled();
+  assert.match(f.text(), /播放器內建/);
+});
 
 test('chapter controls show a loading state until their handlers are mounted', (t) => {
   const f = fixture(t, undefined, { deferEffects: true });

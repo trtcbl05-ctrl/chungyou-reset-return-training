@@ -78,6 +78,9 @@ h2 { margin-top: 4px; font-size: 25px; letter-spacing: -.02em; }
 }
 
 .player-column { min-width: 0; }
+.viewing-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+.viewing-tools p { flex: 1 1 220px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.viewing-tools button { min-height: 44px; padding: 8px 14px; border: 1px solid var(--mint); border-radius: 10px; color: var(--mint); background: var(--surface); cursor: pointer; }
 .video-card {
   overflow: hidden;
   border: 1px solid #365365;
@@ -258,6 +261,7 @@ video:focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; }
   .video-card, .chapter-panel { border-radius: 13px; }
   .now-playing { grid-template-columns: auto minmax(0, 1fr); }
   .now-playing time { grid-column: 2; }
+  .now-playing strong { font-size: 18px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
   .quick-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .download-button { margin-left: 0; }
   .info-strip { display: grid; grid-template-columns: 1fr; gap: 9px; }

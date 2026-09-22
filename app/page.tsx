@@ -56,6 +56,8 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(0);
   const [navigation, setNavigation] = useState<NavigationState>({ phase: 'idle', target: 0, percent: null });
   const [isInteractive, setIsInteractive] = useState(false);
+  const [playback, setPlayback] = useState<'idle' | 'buffering' | 'error'>('idle');
+  const [fullscreenHint, setFullscreenHint] = useState('');
   const isBusy = navigation.phase === 'loading' || navigation.phase === 'seeking';
 
   useEffect(() => {
@@ -80,10 +82,24 @@ export default function Home() {
   const jumpTo = (seconds: number) => {
     const player = playerRef.current;
     if (!player) return;
+    setPlayback('idle');
     navigatorRef.current?.jumpTo(seconds);
     const bounds = player.getBoundingClientRect();
     if (bounds.top < 0 || bounds.bottom > window.innerHeight) {
       player.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    }
+  };
+
+  const enterFullscreen = async () => {
+    const player = playerRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    if (!player) return;
+    try {
+      if (player.requestFullscreen) await player.requestFullscreen();
+      else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
+      else throw new Error('Fullscreen unavailable');
+      setFullscreenHint('');
+    } catch {
+      setFullscreenHint('請使用播放器內建的全螢幕按鈕，或將手機橫向觀看。');
     }
   };
 
@@ -105,7 +121,13 @@ export default function Home() {
               controls
               playsInline
               preload="metadata"
-              poster="/media/01_intro.png"
+              onWaiting={() => setPlayback('buffering')}
+              onStalled={(event) => { if (!event.currentTarget.paused && event.currentTarget.readyState < 3) setPlayback('buffering'); }}
+              onPlaying={() => setPlayback('idle')}
+              onCanPlay={() => setPlayback((state) => state === 'error' ? state : 'idle')}
+              onPause={() => setPlayback((state) => state === 'error' ? state : 'idle')}
+              onEnded={() => setPlayback('idle')}
+              onError={() => setPlayback('error')}
               onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
               onSeeked={(event) => setCurrentTime(event.currentTarget.currentTime)}
               aria-label="崇友重置與緩速歸樓操作模擬影片"
@@ -121,6 +143,24 @@ export default function Home() {
               您的瀏覽器無法播放此影片，請改用下方下載連結觀看。
             </video>
           </div>
+
+          <div className="viewing-tools">
+            <p>手機建議橫向全螢幕觀看，方便辨識開關與動作。</p>
+            <button type="button" onClick={enterFullscreen}>全螢幕觀看</button>
+          </div>
+          {fullscreenHint && <output className="player-status">{fullscreenHint}</output>}
+          {!isBusy && playback !== 'idle' && (
+            <output className={`player-status ${playback}`}>
+              {playback === 'buffering' ? <span>影片正在緩衝，請稍候；若持續等待，可下載影片觀看。</span> : <>
+                <span>影片播放失敗，請重新載入，或使用下方「下載影片」。</span>
+                <button type="button" onClick={() => {
+                  setPlayback('idle');
+                  playerRef.current?.load();
+                  jumpTo(currentTime);
+                }}>重新載入影片</button>
+              </>}
+            </output>
+          )}
 
           {!isInteractive && <output className="player-status">正在啟用章節按鈕…</output>}
 

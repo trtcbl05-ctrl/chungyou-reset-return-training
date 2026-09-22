@@ -20,6 +20,7 @@ export function createVideoNavigator(
   let loading: Promise<void> | null = null;
   let controller: AbortController | null = null;
   let pendingSeek: number | null = null;
+  let nativeStart = false;
   let mediaTimer: ReturnType<typeof setTimeout> | undefined;
 
   const report = (phase: NavigationState['phase']) => {
@@ -57,7 +58,8 @@ export function createVideoNavigator(
     play();
   };
   const seek = () => {
-    if (disposed || !blobUrl || player.readyState < 1) return;
+    if (disposed || (!blobUrl && !nativeStart) || player.readyState < 1) return;
+    nativeStart = false;
     clearMediaTimer();
     target = Math.min(target, Math.max(0, player.duration - 0.01));
     pendingSeek = target;
@@ -125,6 +127,19 @@ export function createVideoNavigator(
     pendingSeek = null;
     clearMediaTimer();
     player.pause();
+    // Starting at zero needs no random access or extra full-file download.
+    // Leave an in-flight chapter download alone so its latest target wins.
+    if (!blobUrl && !loading && target === 0) {
+      nativeStart = true;
+      if (player.error) player.load();
+      if (player.readyState >= 1) seek();
+      else {
+        report('seeking');
+        mediaTimer = setTimeout(fail, 20000);
+      }
+      return;
+    }
+    nativeStart = false;
     if (blobUrl) {
       if (player.readyState >= 1) seek();
       else {
@@ -143,7 +158,7 @@ export function createVideoNavigator(
 
   player.addEventListener('loadedmetadata', seek);
   player.addEventListener('seeked', finishSeek);
-  const onError = () => { if (blobUrl) fail(); };
+  const onError = () => { if (blobUrl || nativeStart) fail(); };
   player.addEventListener('error', onError);
   return {
     jumpTo,
